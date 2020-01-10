@@ -1,6 +1,8 @@
 syntax = "proto3";
 package remote;
 
+option java_package = "io.titandata.plugin.remote";
+
 import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 

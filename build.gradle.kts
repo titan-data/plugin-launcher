@@ -131,7 +131,16 @@ tasks.register<JavaExec>("ktlintFormat") {
 
 tasks.named("check").get().dependsOn(ktlintTask)
 
+// Build echo plugin binary for tests
+val buildEchoPlugin = tasks.register<Exec>("buildEchoPlugin") {
+    workingDir = File("${project.rootDir}/src/test/go")
+    commandLine = listOf("go", "build", "-o", "${project.buildDir}/go/echo", "./echo")
+}
+
+tasks.named("test").get().dependsOn(buildEchoPlugin)
+
 // Test configuration
 tasks.test {
     useJUnitPlatform()
+    systemProperty("pluginDirectory", "${project.buildDir}/go")
 }

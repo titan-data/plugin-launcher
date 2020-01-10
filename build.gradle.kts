@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 apply(plugin="com.github.ben-manes.versions")
+apply(plugin="com.google.protobuf")
 
 buildscript {
     repositories {
@@ -19,8 +20,9 @@ buildscript {
 }
 
 plugins {
-    kotlin("jvm") version "1.3.60"
+    kotlin("jvm") version "1.3.61"
     id("com.github.ben-manes.versions") version("0.27.0")
+    id("com.google.protobuf") version("0.8.11")
     `maven-publish`
 }
 
@@ -37,9 +39,12 @@ repositories {
 val ktlint by configurations.creating
 
 dependencies {
+    compile("com.google.protobuf:protobuf-java:3.11.1")
+    compile("io.grpc:grpc-stub:1.26.0")
+    compile("io.grpc:grpc-protobuf:1.26.0")
     compile(kotlin("stdlib"))
-    compile("org.slf4j:slf4j-api:1.7.29")
-    ktlint("com.pinterest:ktlint:0.35.0")
+    compile("org.slf4j:slf4j-api:1.7.30")
+    ktlint("com.pinterest:ktlint:0.36.0")
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.4.2")
     testImplementation("io.mockk:mockk:1.9.3")
 }

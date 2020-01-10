@@ -1,3 +1,3 @@
 package io.titandata.plugin.remote
 
-class RemoteFactory(val pluginPath: String)
+class RemoteFactory(val pluginDirectory: String)

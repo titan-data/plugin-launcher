@@ -3,7 +3,7 @@ package io.titandata.plugin
 import java.io.File
 import java.lang.IllegalStateException
 
-abstract class PluginFactory(val pluginDirectory : String) {
+abstract class PluginFactory(val pluginDirectory: String) {
 
     data class Header(
         val coreVersion: Int,
@@ -15,7 +15,7 @@ abstract class PluginFactory(val pluginDirectory : String) {
     )
 
     @Suppress("UNUSED_PARAMETER")
-    fun startProcess(pluginName: String, magicCookieKey: String, magicCookieValue: String) : Process {
+    fun startProcess(pluginName: String, magicCookieKey: String, magicCookieValue: String): Process {
         val builder = ProcessBuilder("./$pluginName")
                 .directory(File(pluginDirectory))
         val env = builder.environment()
@@ -24,7 +24,7 @@ abstract class PluginFactory(val pluginDirectory : String) {
         return builder.start()
     }
 
-    fun readHeader(process : Process) : Header {
+    fun readHeader(process: Process): Header {
         val reader = process.inputStream?.bufferedReader() ?: throw IllegalStateException("failed to get output from plugin process")
         reader.use {
             for (line in reader.lines()) {

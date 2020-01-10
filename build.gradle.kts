@@ -4,6 +4,7 @@
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import com.google.protobuf.gradle.*
 
 apply(plugin="com.github.ben-manes.versions")
 apply(plugin="com.google.protobuf")
@@ -42,6 +43,7 @@ dependencies {
     compile("com.google.protobuf:protobuf-java:3.11.1")
     compile("io.grpc:grpc-stub:1.26.0")
     compile("io.grpc:grpc-protobuf:1.26.0")
+    compile("javax.annotation:javax.annotation-api:1.3.2")
     compile(kotlin("stdlib"))
     compile("org.slf4j:slf4j-api:1.7.30")
     ktlint("com.pinterest:ktlint:0.36.0")
@@ -84,6 +86,16 @@ publishing {
             authentication {
                 create<AwsImAuthentication>("awsIm")
             }
+        }
+    }
+}
+
+// Include generated sources in source sets
+sourceSets {
+    main {
+        java {
+            srcDir("${buildDir.absolutePath}/generated/source/proto/main/java")
+            srcDir("${buildDir.absolutePath}/generated/source/proto/main/grpc")
         }
     }
 }
@@ -143,4 +155,24 @@ tasks.named("test").get().dependsOn(buildEchoPlugin)
 tasks.test {
     useJUnitPlatform()
     systemProperty("pluginDirectory", "${project.buildDir}/go")
+}
+
+// GRPC configuration
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.11.1"
+    }
+    plugins {
+        id("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.26.0"
+        }
+    }
+    generateProtoTasks {
+        ofSourceSet("main").forEach {
+            it.plugins {
+                // Apply the "grpc" plugin whose spec is defined above, without options.
+                id("grpc")
+            }
+        }
+    }
 }

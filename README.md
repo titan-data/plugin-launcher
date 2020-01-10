@@ -1,6 +1,10 @@
-# About this Project
+# Titan plugin launcher
 
-Describe the project for users.
+This project is designed to launch and manage plugins built using the
+[Titan Remote SDK for Go](https://github.com/titan-data/remote-sdk-go). The SDK is based on the 
+[HashiCorp go-plugin](https://github.com/hashicorp/go-plugin) framework, which allows arbitrary plugins by
+invoking them as subprocesses and communicating over gRPC. This will help in the transition of Titan from Kotlin
+from GoLang, even if `titan-server` remains written in Kotlin for a lengthy period of time.
 
 ## Contributing
 

@@ -31,7 +31,7 @@ abstract class PluginFactory(val pluginDirectory: String) {
         return builder.start()
     }
 
-    fun readHeader(process: Process): Header {
+    fun getHeader(process: Process): Header {
         val reader = process.inputStream?.bufferedReader() ?: throw IllegalStateException("failed to get output from plugin process")
         reader.use {
             for (line in reader.lines()) {

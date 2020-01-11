@@ -22,7 +22,7 @@ class RemoteFactoryTest : StringSpec() {
         "get header succeeds" {
             val p = remoteFactory.startProcess("echo")
             try {
-                val header = remoteFactory.readHeader(p)
+                val header = remoteFactory.getHeader(p)
                 header.coreVersion shouldBe 1
                 header.protoVersion shouldBe 1
                 header.protoType shouldBe "grpc"
@@ -35,10 +35,21 @@ class RemoteFactoryTest : StringSpec() {
         "get managed channel succeeds" {
             val p = remoteFactory.startProcess("echo")
             try {
-                val header = remoteFactory.readHeader(p)
-                remoteFactory.getManagedChannel(header)
+                val header = remoteFactory.getHeader(p)
+                val mc = remoteFactory.getManagedChannel(header)
+                mc.shutdownNow()
             } finally {
                 p.destroy()
+            }
+        }
+
+        "get remote type" {
+            val r = remoteFactory.load("echo")
+            try {
+                r.type() shouldBe "echo"
+                r.type() shouldBe "echo"
+            } finally {
+                remoteFactory.unload("echo")
             }
         }
     }

@@ -1,8 +1,12 @@
 package io.titandata.plugin.remote
 
-class RemoteClient : Remote {
+import com.google.protobuf.Empty
+
+class RemoteClient(val stub: RemoteGrpc.RemoteBlockingStub) : Remote {
     override fun type(): String {
-        TODO("not implemented")
+        val req = Empty.newBuilder().build()
+        val res = stub.type(req)
+        return res.type
     }
 
     override fun fromURL(url: String, properties: Map<String, String>): Map<String, Any> {

@@ -1,7 +1,15 @@
 package io.titandata.plugin
 
+import io.grpc.ManagedChannel
+import io.grpc.ManagedChannelBuilder
+import io.grpc.netty.NettyChannelBuilder
+import io.netty.channel.epoll.EpollDomainSocketChannel
+import io.netty.channel.epoll.EpollEventLoopGroup
+import io.netty.channel.kqueue.KQueueDomainSocketChannel
+import io.netty.channel.kqueue.KQueueEventLoopGroup
+import io.netty.channel.unix.DomainSocketAddress
 import java.io.File
-import java.lang.IllegalStateException
+import kotlin.IllegalStateException
 
 abstract class PluginFactory(val pluginDirectory: String) {
 
@@ -14,7 +22,6 @@ abstract class PluginFactory(val pluginDirectory: String) {
         val serverCert: String
     )
 
-    @Suppress("UNUSED_PARAMETER")
     fun startProcess(pluginName: String, magicCookieKey: String, magicCookieValue: String): Process {
         val builder = ProcessBuilder("./$pluginName")
                 .directory(File(pluginDirectory))
@@ -47,5 +54,40 @@ abstract class PluginFactory(val pluginDirectory: String) {
                 throw IllegalStateException("process exited before finding plugin header line: $errText")
             }
         }
+    }
+
+    fun getManagedChannel(header: Header): ManagedChannel {
+        if (header.network == "tcp") {
+            return ManagedChannelBuilder.forTarget(header.addr)
+                    .usePlaintext()
+                    .build()
+        }
+
+        if (header.network == "unix") {
+            /*
+             * Java does not support UDS natively, so we have to use OS-specific UDS implementations, either epoll
+             * (Linux) or kqueue (MacOS).
+             */
+            val os = System.getProperty("os.name") ?: throw IllegalStateException("failed to determine OS name")
+            if (os.toLowerCase().contains("mac os x")) {
+                val klg = KQueueEventLoopGroup()
+                return NettyChannelBuilder
+                        .forAddress(DomainSocketAddress(header.addr))
+                        .eventLoopGroup(klg)
+                        .channelType(KQueueDomainSocketChannel::class.java)
+                        .usePlaintext()
+                        .build()
+            } else {
+                val elg = EpollEventLoopGroup()
+                return NettyChannelBuilder
+                        .forAddress(DomainSocketAddress(header.addr))
+                        .eventLoopGroup(elg)
+                        .channelType(EpollDomainSocketChannel::class.java)
+                        .usePlaintext()
+                        .build()
+            }
+        }
+
+        throw IllegalStateException("unknown protocol type '${header.protoType}")
     }
 }

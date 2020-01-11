@@ -38,12 +38,16 @@ repositories {
 }
 
 val ktlint by configurations.creating
+val grpcVersion = "1.26.0"
 
 dependencies {
     compile("com.google.protobuf:protobuf-java:3.11.1")
-    compile("io.grpc:grpc-stub:1.26.0")
-    compile("io.grpc:grpc-protobuf:1.26.0")
+    compile("io.grpc:grpc-stub:$grpcVersion")
+    compile("io.grpc:grpc-netty:$grpcVersion")
+    compile("io.grpc:grpc-protobuf:$grpcVersion")
     compile("javax.annotation:javax.annotation-api:1.3.2")
+    compile("io.netty:netty-transport-native-epoll:4.1.44.Final:linux-x86_64")
+    compile("io.netty:netty-transport-native-kqueue:4.1.44.Final:osx-x86_64")
     compile(kotlin("stdlib"))
     compile("org.slf4j:slf4j-api:1.7.30")
     ktlint("com.pinterest:ktlint:0.36.0")
@@ -164,7 +168,7 @@ protobuf {
     }
     plugins {
         id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.26.0"
+            artifact = "io.grpc:protoc-gen-grpc-java:$grpcVersion"
         }
     }
     generateProtoTasks {

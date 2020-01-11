@@ -19,15 +19,24 @@ class RemoteFactoryTest : StringSpec() {
             p.destroy()
         }
 
-        "echo header is returned" {
+        "get header succeeds" {
             val p = remoteFactory.startProcess("echo")
             try {
                 val header = remoteFactory.readHeader(p)
                 header.coreVersion shouldBe 1
                 header.protoVersion shouldBe 1
-                header.network shouldBe "unix"
                 header.protoType shouldBe "grpc"
                 header.serverCert shouldBe ""
+            } finally {
+                p.destroy()
+            }
+        }
+
+        "get managed channel succeeds" {
+            val p = remoteFactory.startProcess("echo")
+            try {
+                val header = remoteFactory.readHeader(p)
+                remoteFactory.getManagedChannel(header)
             } finally {
                 p.destroy()
             }

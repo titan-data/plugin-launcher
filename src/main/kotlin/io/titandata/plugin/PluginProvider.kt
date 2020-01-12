@@ -11,7 +11,7 @@ import io.netty.channel.unix.DomainSocketAddress
 import java.io.File
 import kotlin.IllegalStateException
 
-abstract class PluginFactory(val pluginDirectory: String) {
+abstract class PluginProvider(val pluginDirectory: String) {
 
     data class Header(
         val coreVersion: Int,
@@ -38,6 +38,7 @@ abstract class PluginFactory(val pluginDirectory: String) {
             for (line in reader.lines()) {
                 val fields = line.trim().split("|")
                 if (fields.size == 6) {
+                    process.inputStream?.close()
                     return Header(
                             coreVersion = fields[0].toInt(),
                             protoVersion = fields[1].toInt(),

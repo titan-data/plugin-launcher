@@ -24,6 +24,7 @@ abstract class PluginFactory(val pluginDirectory: String) {
 
     fun startProcess(pluginName: String, magicCookieKey: String, magicCookieValue: String): Process {
         val builder = ProcessBuilder("./$pluginName")
+                .redirectError(ProcessBuilder.Redirect.INHERIT)
                 .directory(File(pluginDirectory))
         val env = builder.environment()
         env[magicCookieKey] = magicCookieValue
@@ -68,7 +69,7 @@ abstract class PluginFactory(val pluginDirectory: String) {
              * Java does not support UDS natively, so we have to use OS-specific UDS implementations, either epoll
              * (Linux) or kqueue (MacOS).
              */
-            val os = System.getProperty("os.name") ?: throw IllegalStateException("failed to determine OS name")
+            val os = System.getProperty("os.name") ?: throw IllegalStateException("failed to determine OS type")
             if (os.toLowerCase().contains("mac os x")) {
                 val klg = KQueueEventLoopGroup()
                 return NettyChannelBuilder

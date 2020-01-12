@@ -8,3 +8,6 @@
 
 # OS Generated files
 .DS_Store
+
+# Temporary files
+.*.swp

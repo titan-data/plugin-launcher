@@ -4,10 +4,10 @@ import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.specs.StringSpec
 
-class RemoteFactoryTest : StringSpec() {
+class RemoteProviderTest : StringSpec() {
 
     val pluginDirectory = System.getProperty("pluginDirectory")
-    val remoteFactory = RemoteFactory(pluginDirectory)
+    val remoteFactory = RemoteProvider(pluginDirectory)
 
     init {
         "pluginDirectory property is configured" {

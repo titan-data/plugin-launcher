@@ -1,9 +1,12 @@
+/*
+ * Copyright The Titan Project Contributors
+ */
 package io.titandata.plugin.remote
 
 import io.grpc.ManagedChannel
 import io.titandata.plugin.PluginFactory
 
-class RemoteFactory(pluginDirectory: String) : PluginFactory(pluginDirectory) {
+class RemoteProvider(pluginDirectory: String) : PluginFactory(pluginDirectory) {
 
     private val magicCookieKey = "titan"
     private val magicCookieValue = "dba4fe2b-56ff-4a16-9bfc-bf651b8f12d6"
@@ -20,15 +23,22 @@ class RemoteFactory(pluginDirectory: String) : PluginFactory(pluginDirectory) {
         return startProcess(pluginName, magicCookieKey, magicCookieValue)
     }
 
+    private fun loadOne(pluginName: String): LoadedPlugin {
+        val p = startProcess(pluginName)
+        val header = getHeader(p)
+        val channel = getManagedChannel(header)
+        val stub = RemoteGrpc.newBlockingStub(channel)
+        val client = RemoteClient(stub)
+        return LoadedPlugin(p, channel, client)
+    }
+
     @Synchronized
     fun load(pluginName: String): Remote {
         if (!loadedPlugins.containsKey(pluginName)) {
-            val p = startProcess(pluginName)
-            val header = getHeader(p)
-            val channel = getManagedChannel(header)
-            val stub = RemoteGrpc.newBlockingStub(channel)
-            val client = RemoteClient(stub)
-            loadedPlugins[pluginName] = LoadedPlugin(p, channel, client)
+            loadedPlugins[pluginName] = loadOne(pluginName)
+        } else if (!loadedPlugins[pluginName]!!.process.isAlive) {
+            unload(pluginName)
+            loadedPlugins[pluginName] = loadOne(pluginName)
         }
 
         return loadedPlugins[pluginName]!!.client
